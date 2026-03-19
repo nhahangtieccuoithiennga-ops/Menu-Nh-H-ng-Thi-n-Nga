@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Nhà Hàng Thiện Nga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-orange-50 text-neutral-900">
+    <div id="app"></div>
+
+    <script>
+      /*
+      =====================================================
+      HUONG DAN CHINH SUA WEBSITE
+      =====================================================
+
+      1) SUA TEN QUAN:
+         tim dong: restaurantName
+
+      2) SUA SO DIEN THOAI:
+         tim dong: phone
+
+      3) SUA DIA CHI:
+         tim dong: address
+
+      4) SUA LINK WEBSITE DE TAO MA QR:
+         tim dong: websiteUrl
+         sau khi dang website len mang, dan link website cua ban vao day
+
+      5) SUA MON AN:
+         tim muc: menuItems
+         moi mon an co:
+         - name: ten mon
+         - price: gia
+         - image: link hinh anh
+         - category: nhom mon
+         - description: mo ta ngan
+
+      6) THEM MON MOI:
+         copy 1 khối mon an trong menuItems va doi noi dung
+
+      7) XOA MON:
+         xoa khối mon an do
+      =====================================================
+      */
+
+      const config = {
+        restaurantName: "Nhà Hàng Thiện Nga",
+        slogan: "Menu hiện đại - dễ xem - dễ cập nhật",
+        phone: "0904 992 439",
+        address: "Ninh Mã, Đại Lãnh, Khánh Hoà",
+        openHours: "08:00 - 22:00",
+        websiteUrl: "https://example.com",
+        heroImage:
+          "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80",
+      };
+
+      const menuItems = [
+        {
+          name: "Phở bò đặc biệt",
+          price: "79.000đ",
+          image:
+            "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=1200&q=80",
+          category: "Món chính",
+          description: "Nước dùng đậm vị, bò tái, nạm, gầu và bánh phở mềm.",
+        },
+        {
+          name: "Bún chả Hà Nội",
+          price: "69.000đ",
+          image:
+            "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1200&q=80",
+          category: "Món chính",
+          description: "Chả nướng thơm, bún tươi, rau sống và nước mắm chua ngọt.",
+        },
+        {
+          name: "Cơm tấm sườn nướng",
+          price: "72.000đ",
+          image:
+            "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=80",
+          category: "Món chính",
+          description: "Sườn nướng mềm thơm, ăn kèm bì, chả và nước mắm pha.",
+        },
+        {
+          name: "Gỏi cuốn tôm thịt",
+          price: "49.000đ",
+          image:
+            "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=1200&q=80",
+          category: "Khai vị",
+          description: "Cuốn tươi với tôm, thịt, bún, rau và sốt đậu phộng.",
+        },
+        {
+          name: "Chả giò chiên giòn",
+          price: "55.000đ",
+          image:
+            "https://images.unsplash.com/photo-1604908176997-431221f1bc1e?auto=format&fit=crop&w=1200&q=80",
+          category: "Khai vị",
+          description: "Vỏ giòn rụm, nhân đầy đặn, ăn kèm rau và nước chấm.",
+        },
+        {
+          name: "Bánh flan caramel",
+          price: "35.000đ",
+          image:
+            "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=80",
+          category: "Tráng miệng",
+          description: "Mềm mịn, béo nhẹ, phủ lớp caramel ngọt thanh.",
+        },
+        {
+          name: "Trà đào cam sả",
+          price: "42.000đ",
+          image:
+            "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=1200&q=80",
+          category: "Đồ uống",
+          description: "Vị trà thanh mát, thơm sả, đào và lát cam tươi.",
+        },
+        {
+          name: "Cà phê sữa đá",
+          price: "32.000đ",
+          image:
+            "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80",
+          category: "Đồ uống",
+          description: "Đậm đà, thơm nồng, chuẩn vị cà phê Việt Nam.",
+        },
+      ];
+
+      const categories = ["Tất cả", ...new Set(menuItems.map((item) => item.category))];
+      let selectedCategory = "Tất cả";
+      let searchText = "";
+
+      function getQrImage(url) {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(url)}`;
+      }
+
+      function render() {
+        const app = document.getElementById("app");
+        const filteredItems = menuItems.filter((item) => {
+          const matchCategory =
+            selectedCategory === "Tất cả" || item.category === selectedCategory;
+          const matchSearch = item.name.toLowerCase().includes(searchText.toLowerCase());
+          return matchCategory && matchSearch;
+        });
+
+        app.innerHTML = `
+          <header class="relative overflow-hidden bg-white">
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-100 via-white to-amber-100"></div>
+            <div class="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+              <div class="grid items-center gap-8 lg:grid-cols-2">
+                <div>
+                  <span class="inline-flex rounded-full bg-orange-100 px-4 py-2 text-sm font-bold text-orange-700">
+                    ${config.restaurantName}
+                  </span>
+                  <h1 class="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl">
+                    Website menu hiện đại, dễ sửa và có mã QR
+                  </h1>
+                  <p class="mt-4 max-w-2xl text-lg leading-8 text-neutral-600">
+                    ${config.slogan}
+                  </p>
+
+                  <div class="mt-8 grid gap-3 sm:grid-cols-3">
+                    <div class="rounded-3xl bg-white p-4 shadow-md ring-1 ring-neutral-200">
+                      <p class="text-sm text-neutral-500">Điện thoại</p>
+                      <p class="mt-1 font-bold">${config.phone}</p>
+                    </div>
+                    <div class="rounded-3xl bg-white p-4 shadow-md ring-1 ring-neutral-200">
+                      <p class="text-sm text-neutral-500">Giờ mở cửa</p>
+                      <p class="mt-1 font-bold">${config.openHours}</p>
+                    </div>
+                    <div class="rounded-3xl bg-white p-4 shadow-md ring-1 ring-neutral-200">
+                      <p class="text-sm text-neutral-500">Địa chỉ</p>
+                      <p class="mt-1 font-bold">${config.address}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="relative">
+                  <img
+                    src="${config.heroImage}"
+                    alt="Hình đại diện nhà hàng"
+                    class="h-[320px] w-full rounded-[28px] object-cover shadow-2xl sm:h-[420px]"
+                  />
+                  <div class="absolute -bottom-5 left-4 rounded-[24px] bg-white p-4 shadow-xl sm:left-6">
+                    <p class="text-sm text-neutral-500">Quét mã QR để xem menu</p>
+                    <div class="mt-3 flex items-center gap-4">
+                      <img
+                        src="${getQrImage(config.websiteUrl)}"
+                        alt="Mã QR website"
+                        class="h-20 w-20 rounded-xl border border-neutral-200 bg-white p-1"
+                      />
+                      <div>
+                        <p class="font-bold">Menu online</p>
+                        <p class="text-sm text-neutral-500">Dán link website của bạn vào mục websiteUrl</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <section>
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <h2 class="text-3xl font-extrabold">Thực đơn</h2>
+                  <p class="mt-2 text-neutral-600">Tìm món ăn, lọc theo danh mục và cập nhật cực dễ.</p>
+                </div>
+                <div class="w-full lg:w-80">
+                  <input
+                    id="searchInput"
+                    type="text"
+                    placeholder="Tìm món ăn..."
+                    value="${searchText.replace(/"/g, "&quot;")}"
+                    class="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 outline-none focus:border-orange-400"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-6 flex flex-wrap gap-3">
+                ${categories
+                  .map(
+                    (category) => `
+                      <button
+                        class="category-btn rounded-full px-4 py-2 text-sm font-bold transition ${
+                          selectedCategory === category
+                            ? "bg-neutral-900 text-white"
+                            : "border border-neutral-200 bg-white text-neutral-700 hover:border-orange-300"
+                        }"
+                        data-category="${category}"
+                      >
+                        ${category}
+                      </button>
+                    `
+                  )
+                  .join("")}
+              </div>
+
+              <div class="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                ${filteredItems
+                  .map(
+                    (item) => `
+                      <article class="overflow-hidden rounded-[28px] bg-white shadow-md ring-1 ring-neutral-200 transition hover:-translate-y-1 hover:shadow-xl">
+                        <img src="${item.image}" alt="${item.name}" class="h-56 w-full object-cover" />
+                        <div class="p-5">
+                          <div class="mb-3 flex items-center justify-between gap-3">
+                            <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">${item.category}</span>
+                            <span class="text-lg font-extrabold text-orange-600">${item.price}</span>
+                          </div>
+                          <h3 class="text-xl font-bold">${item.name}</h3>
+                          <p class="mt-2 text-sm leading-6 text-neutral-600">${item.description}</p>
+                        </div>
+                      </article>
+                    `
+                  )
+                  .join("")}
+              </div>
+            </section>
+
+            <section class="mt-14 grid gap-6 lg:grid-cols-2">
+              <div class="rounded-[28px] bg-white p-6 shadow-md ring-1 ring-neutral-200">
+                <h3 class="text-2xl font-extrabold">Thông tin quán</h3>
+                <div class="mt-4 space-y-3 text-neutral-700">
+                  <p><span class="font-bold">Tên quán:</span> ${config.restaurantName}</p>
+                  <p><span class="font-bold">Điện thoại:</span> ${config.phone}</p>
+                  <p><span class="font-bold">Địa chỉ:</span> ${config.address}</p>
+                  <p><span class="font-bold">Giờ mở cửa:</span> ${config.openHours}</p>
+                </div>
+              </div>
+
+              <div class="rounded-[28px] bg-white p-6 shadow-md ring-1 ring-neutral-200">
+                <h3 class="text-2xl font-extrabold">Mã QR menu</h3>
+                <p class="mt-2 text-neutral-600">
+                  Sau khi đăng website lên mạng, dán link website vào mục <b>websiteUrl</b> ở đầu file để mã QR hoạt động đúng.
+                </p>
+                <div class="mt-5 flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+                  <img
+                    src="${getQrImage(config.websiteUrl)}"
+                    alt="Mã QR"
+                    class="h-44 w-44 rounded-2xl border border-neutral-200 bg-white p-2"
+                  />
+                  <div>
+                    <p class="font-bold">Link đang dùng:</p>
+                    <p class="mt-1 break-all text-sm text-neutral-500">${config.websiteUrl}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </main>
+
+          <footer class="mt-12 bg-neutral-950 text-white">
+            <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+              <div class="grid gap-6 lg:grid-cols-3">
+                <div>
+                  <h4 class="text-2xl font-bold">${config.restaurantName}</h4>
+                  <p class="mt-3 text-sm leading-6 text-neutral-300">
+                    Website menu dễ chỉnh sửa, phù hợp cho nhà hàng, quán ăn, quán cafe và menu QR.
+                  </p>
+                </div>
+                <div>
+                  <h5 class="font-bold">Liên hệ</h5>
+                  <div class="mt-3 space-y-2 text-sm text-neutral-300">
+                    <p>${config.phone}</p>
+                    <p>${config.address}</p>
+                  </div>
+                </div>
+                <div>
+                  <h5 class="font-bold">Giờ hoạt động</h5>
+                  <p class="mt-3 text-sm text-neutral-300">${config.openHours}</p>
+                </div>
+              </div>
+            </div>
+          </footer>
+        `;
+
+        document.querySelectorAll(".category-btn").forEach((button) => {
+          button.addEventListener("click", () => {
+            selectedCategory = button.dataset.category;
+            render();
+          });
+        });
+
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+          searchInput.addEventListener("input", (event) => {
+            searchText = event.target.value;
+            render();
+          });
+        }
+      }
+
+      render();
+    </script>
+  </body>
+</html>
